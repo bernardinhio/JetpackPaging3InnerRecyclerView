@@ -6,6 +6,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.example.myego.api.RetrofitApi
 import com.example.myego.datamodel.PokemonDetails
+import com.example.myego.datamodel.PokemonOverview
 import com.example.myego.datamodel.Pokemons
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +26,7 @@ class MainRepository @Inject constructor(
     val pokemonDetails: MutableStateFlow<BackendResult> =
         MutableStateFlow<BackendResult>(BackendNotCalledYet)
 
-    fun getPagingDataFlow() : Flow<PagingData<Pokemons.PokemonOverview>> {
+    fun getPagingDataFlow() : Flow<PagingData<PokemonOverview>> {
 
         val pagingConfig = PagingConfig(
             pageSize = 20,
@@ -37,14 +38,14 @@ class MainRepository @Inject constructor(
             { PokemonPagingSource(retrofitApi) }
 
         // Pager is reactive stream of PagingData
-        val pokemonPager: Pager<Int, Pokemons.PokemonOverview> = Pager<Int, Pokemons.PokemonOverview>(
+        val pokemonPager: Pager<Int, PokemonOverview> = Pager<Int, PokemonOverview>(
             config = pagingConfig,
             pagingSourceFactory = lambdaPagingSourceToCheckSuspend
         )
 
-        val flowOfPhotosPagingData: Flow<PagingData<Pokemons.PokemonOverview>> = pokemonPager.flow
+        val flowOfPokemonsPagingData: Flow<PagingData<PokemonOverview>> = pokemonPager.flow
 
-        return flowOfPhotosPagingData
+        return flowOfPokemonsPagingData
     }
 
 

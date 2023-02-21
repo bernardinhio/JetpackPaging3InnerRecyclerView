@@ -1,60 +1,75 @@
 package com.example.myego.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myego.R
 import com.example.myego.databinding.ItemlistPokemonsBinding
+import com.example.myego.datamodel.PokemonOverview
 import com.example.myego.datamodel.PokemonPhoto
-import com.example.myego.datamodel.Pokemons
 import com.example.myego.datamodel.Sprites
 import com.example.myego.extensions.getPokemonIdFromUrl
-import com.example.myego.view.MainFragment
-import com.example.myego.viewmodel.MainFragmentViewModel
-import javax.inject.Inject
 
-class PokemonsPagingDataAdapter @Inject constructor(
-    val viewModel: MainFragmentViewModel,
-    val mainFragment: MainFragment
-) : PagingDataAdapter<Pokemons.PokemonOverview, PokemonsPagingDataAdapter.PokemonViewHolder>(
-    PokemonsDiffUtilItemCallback()
-) {
+class PokemonsPagingDataAdapter (
+    val actionItemClicked: (String, Int) -> Unit
+) : PagingDataAdapter<PokemonOverview, PokemonsPagingDataAdapter.PokemonViewHolder>(PokemonsDiffUtilItemCallback()) {
 
-    inner class PokemonViewHolder(private val viewBinding: ItemlistPokemonsBinding) :
+    inner class PokemonViewHolder(val viewBinding: ItemlistPokemonsBinding) :
         RecyclerView.ViewHolder(viewBinding.root) {
 
-        fun bind(data: Pokemons.PokemonOverview) {
-            viewBinding.tvName.text = data.name.orEmpty().uppercase()
+        lateinit var currentPokemonId: String
 
-            val pokemonDetailsUrl: String = data.urlPokemonDetails.orEmpty()
-            val pokemonId = pokemonDetailsUrl.getPokemonIdFromUrl()
+        fun setCurrentPokemonId(itemData: PokemonOverview) {
+            val pokemonDetailsUrl: String = itemData.urlPokemonDetails.orEmpty()
+            currentPokemonId = pokemonDetailsUrl.getPokemonIdFromUrl()
+        }
 
-            viewModel.pokemonDetailsLiveData.observe(
-                mainFragment.viewLifecycleOwner,
-                { pokemonDetails ->
-                    viewBinding.tvName.text = pokemonDetails.name.orEmpty().uppercase()
-                    viewBinding.tvBaseExperience.text =
-                        "Base Experience: ${pokemonDetails.baseExperience?.toString()}"
-                    viewBinding.tvId.text = "Id: ${pokemonDetails.id?.toString()}"
-                    viewBinding.tvOrder.text = "Order: ${pokemonDetails.order?.toString()}"
-                    viewBinding.tvHeight.text = "Height: ${pokemonDetails.height?.toString()}"
-                    viewBinding.tvWeight.text = "Weight: ${pokemonDetails.weight?.toString()}"
+        fun expandCollapse(itemData: PokemonOverview) {
 
-                    val sprinters = pokemonDetails.sprites
-                    setupPokemonPhotosRecyclerView(viewBinding.rvPokemonPhotos, sprinters)
-                }
-            )
+            if(!itemData.isExpanded){
+                viewBinding.ivLogoPokemon.setBackgroundResource(R.drawable.pokemon_closed)
+                viewBinding.ivArrowExpandCollapse.setBackgroundResource(R.drawable.arrow_up_pokemon)
+                viewBinding.tvActionDetails.text = "Explore"
+                viewBinding.progressBarPokemonDetails.visibility = View.GONE
+                viewBinding.tvBaseExperience.visibility = View.GONE
+                viewBinding.rvPokemonPhotos.visibility = View.GONE
+                viewBinding.tvId.visibility = View.GONE
+                viewBinding.tvOrder.visibility = View.GONE
+                viewBinding.tvHeight.visibility = View.GONE
+                viewBinding.tvWeight.visibility = View.GONE
+            } else {
+                viewBinding.ivLogoPokemon.setBackgroundResource(R.drawable.pokemon_openned)
+                viewBinding.ivArrowExpandCollapse.setBackgroundResource(R.drawable.arrow_down_pokemon)
+                viewBinding.tvActionDetails.text = "Collapse"
+                viewBinding.progressBarPokemonDetails.visibility = View.GONE
+                viewBinding.tvBaseExperience.visibility = View.VISIBLE
+                viewBinding.rvPokemonPhotos.visibility = View.VISIBLE
+                viewBinding.tvId.visibility = View.VISIBLE
+                viewBinding.tvOrder.visibility = View.VISIBLE
+                viewBinding.tvHeight.visibility = View.VISIBLE
+                viewBinding.tvWeight.visibility = View.VISIBLE
+            }
+        }
 
-            viewModel.fetchPokemonDetails(pokemonId)
+        fun bind(itemData: PokemonOverview) {
+            viewBinding.tvName.text = itemData.name.orEmpty().uppercase()
+            viewBinding.tvBaseExperience.text = "Base Experience: ${itemData.baseExperience?:-1}"
+            viewBinding.tvId.text = "Id: ${itemData.id?:-1}"
+            viewBinding.tvOrder.text = "Order: ${itemData.order?:-1}"
+            viewBinding.tvHeight.text = "Height: ${itemData.height?:-1}"
+            viewBinding.tvWeight.text = "Weight: ${itemData.weight?:-1}"
+
+            setupPokemonPhotosRecyclerView(viewBinding.rvPokemonPhotos, itemData.sprites)
         }
 
         fun setupPokemonPhotosRecyclerView(
             rvPokemonPhotos: RecyclerView,
             sprinters: Sprites?
         ) {
-
             val imagesList = mutableListOf<PokemonPhoto>().apply {
                 add(PokemonPhoto("Front Default", sprinters?.frontDefaultImage))
                 add(PokemonPhoto("Back Default", sprinters?.backDefaultImage))
@@ -80,21 +95,29 @@ class PokemonsPagingDataAdapter @Inject constructor(
             }
         }
 
+
+        fun setOnItemClicked(itemData: PokemonOverview, dataPosition: Int) {
+            viewBinding.root.setOnClickListener {
+                actionItemClicked(currentPokemonId, dataPosition)
+            }
+        }
+
+
     }
 
-    class PokemonsDiffUtilItemCallback : DiffUtil.ItemCallback<Pokemons.PokemonOverview>() {
+    class PokemonsDiffUtilItemCallback : DiffUtil.ItemCallback<PokemonOverview>() {
         override fun areItemsTheSame(
-            oldItem: Pokemons.PokemonOverview,
-            newItem: Pokemons.PokemonOverview
+            oldItem: PokemonOverview,
+            newItem: PokemonOverview
         ): Boolean {
             return newItem.hashCode() == oldItem.hashCode()
         }
 
         override fun areContentsTheSame(
-            oldItem: Pokemons.PokemonOverview,
-            newItem: Pokemons.PokemonOverview
+            oldItem: PokemonOverview,
+            newItem: PokemonOverview
         ): Boolean {
-            return oldItem.urlPokemonDetails == newItem.urlPokemonDetails
+            return oldItem.urlPokemonDetails.equals(newItem.urlPokemonDetails)
         }
 
     }
@@ -110,8 +133,13 @@ class PokemonsPagingDataAdapter @Inject constructor(
     }
 
     override fun onBindViewHolder(holder: PokemonViewHolder, position: Int) {
-        val currentDataItem: Pokemons.PokemonOverview? = this.getItem(position)
-        currentDataItem?.let { holder.bind(it) }
+        val currentDataItem: PokemonOverview? = this.getItem(position)
+        currentDataItem?.let { pokemonOverview ->
+            holder.setCurrentPokemonId(pokemonOverview)
+            holder.expandCollapse(pokemonOverview)
+            holder.bind(pokemonOverview)
+            holder.setOnItemClicked(pokemonOverview, position)
+        }
     }
 
 }

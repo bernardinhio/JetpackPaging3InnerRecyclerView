@@ -13,13 +13,5 @@ data class Pokemons(
     val countPokemonsInAllPages: Int? = null,
 
     @SerializedName("results")
-    val listOfPokemonOverviews: Array<PokemonOverview>? = null
-) {
-
-    inner class PokemonOverview {
-        val name: String? = null
-
-        @SerializedName("url")
-        val urlPokemonDetails: String? = null
-    }
-}
+    val listOfPokemonOverviews: List<PokemonOverview>? = null
+)

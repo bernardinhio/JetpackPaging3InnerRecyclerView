@@ -7,7 +7,7 @@ data class PokemonDetails(
     val name: String? = null,
     @SerializedName("base_experience")
     val baseExperience: Int? = null,
-    val id: Int? = null,  // maybe all are Int
+    val id: Int? = null,
     val order: Int? = null,
     val weight: Int? = null,
     val height: Int? = null,

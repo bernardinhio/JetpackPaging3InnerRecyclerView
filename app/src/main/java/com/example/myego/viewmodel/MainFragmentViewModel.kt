@@ -7,6 +7,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.example.myego.data.*
 import com.example.myego.datamodel.PokemonDetails
+import com.example.myego.datamodel.PokemonOverview
 import com.example.myego.datamodel.Pokemons
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -19,7 +20,7 @@ class MainFragmentViewModel @Inject constructor(
     private val repository: MainRepository
 ) : ViewModel() {
 
-    val pokemonPagingDataLiveData = MutableLiveData<PagingData<Pokemons.PokemonOverview>>()
+    val pokemonPagingDataLiveData = MutableLiveData<PagingData<PokemonOverview>>()
 
     val pokemonDetailsLiveData = MutableLiveData<PokemonDetails>()
 
@@ -27,7 +28,7 @@ class MainFragmentViewModel @Inject constructor(
 
     fun fetchApiAndUpdatePagingData() {
 
-        val flow: Flow<PagingData<Pokemons.PokemonOverview>> =
+        val flow: Flow<PagingData<PokemonOverview>> =
             repository.getPagingDataFlow()
                 .cachedIn(viewModelScope)  // We are NOT allowed to call twice the same call to PagingData
 
