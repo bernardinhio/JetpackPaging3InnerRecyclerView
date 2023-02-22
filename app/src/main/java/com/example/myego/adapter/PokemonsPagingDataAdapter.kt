@@ -30,7 +30,7 @@ class PokemonsPagingDataAdapter (
 
         fun expandCollapse(itemData: PokemonOverview) {
 
-            if(!itemData.isExpanded){
+            if(!itemData.uiIsExpanded){
                 viewBinding.ivLogoPokemon.setBackgroundResource(R.drawable.pokemon_closed)
                 viewBinding.ivArrowExpandCollapse.setBackgroundResource(R.drawable.arrow_up_pokemon)
                 viewBinding.tvActionDetails.text = "Explore"
@@ -57,13 +57,13 @@ class PokemonsPagingDataAdapter (
 
         fun bind(itemData: PokemonOverview) {
             viewBinding.tvName.text = itemData.name.orEmpty().uppercase()
-            viewBinding.tvBaseExperience.text = "Base Experience: ${itemData.baseExperience?:-1}"
-            viewBinding.tvId.text = "Id: ${itemData.id?:-1}"
-            viewBinding.tvOrder.text = "Order: ${itemData.order?:-1}"
-            viewBinding.tvHeight.text = "Height: ${itemData.height?:-1}"
-            viewBinding.tvWeight.text = "Weight: ${itemData.weight?:-1}"
+            viewBinding.tvBaseExperience.text = "Base Experience: ${itemData.uiBaseExperience?:-1}"
+            viewBinding.tvId.text = "Id: ${itemData.uiPokemonId?:-1}"
+            viewBinding.tvOrder.text = "Order: ${itemData.uiOrder?:-1}"
+            viewBinding.tvHeight.text = "Height: ${itemData.uiHeight?:-1}"
+            viewBinding.tvWeight.text = "Weight: ${itemData.uiWeight?:-1}"
 
-            setupPokemonPhotosRecyclerView(viewBinding.rvPokemonPhotos, itemData.sprites)
+            setupPokemonPhotosRecyclerView(viewBinding.rvPokemonPhotos, itemData.uiSprites)
         }
 
         fun setupPokemonPhotosRecyclerView(
@@ -98,11 +98,16 @@ class PokemonsPagingDataAdapter (
 
         fun setOnItemClicked(itemData: PokemonOverview, dataPosition: Int) {
             viewBinding.root.setOnClickListener {
+                viewBinding.progressBarPokemonDetails.visibility = View.VISIBLE
                 actionItemClicked(currentPokemonId, dataPosition)
             }
         }
 
-
+        fun setPokemonDetailsProgressBar(pokemonOverview: PokemonOverview) {
+            if(pokemonOverview.uiDataIsLoading){
+                viewBinding.progressBarPokemonDetails.visibility = View.VISIBLE
+            } else viewBinding.progressBarPokemonDetails.visibility = View.GONE
+        }
     }
 
     class PokemonsDiffUtilItemCallback : DiffUtil.ItemCallback<PokemonOverview>() {
@@ -139,6 +144,7 @@ class PokemonsPagingDataAdapter (
             holder.expandCollapse(pokemonOverview)
             holder.bind(pokemonOverview)
             holder.setOnItemClicked(pokemonOverview, position)
+            holder.setPokemonDetailsProgressBar(pokemonOverview)
         }
     }
 

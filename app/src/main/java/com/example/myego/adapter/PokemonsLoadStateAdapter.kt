@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import androidx.paging.LoadState
 import androidx.paging.LoadStateAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.myego.data.ResponseMessage
+import com.example.myego.data.PagingDataResponseMessage
 import com.example.myego.databinding.ItemlistFooterPokemonsBinding
 
 class PokemonsLoadStateAdapter(private val actionLambdaForOnClick: () -> Unit) :
@@ -67,7 +67,7 @@ class PokemonsLoadStateAdapter(private val actionLambdaForOnClick: () -> Unit) :
 
                     when (loadState.error.message) {
 
-                        ResponseMessage.LIST_OF_RESULTS_ENDED.message -> {
+                        PagingDataResponseMessage.LIST_OF_RESULTS_ENDED.message -> {
                             with(binding) {
                                 progressBar.visibility = View.GONE
                                 root.background = ColorDrawable(Color.BLUE)
@@ -75,7 +75,7 @@ class PokemonsLoadStateAdapter(private val actionLambdaForOnClick: () -> Unit) :
                             }
                         }
 
-                        ResponseMessage.NO_RESULTS.message -> {
+                        PagingDataResponseMessage.NO_RESULTS.message -> {
                             with(binding) {
                                 progressBar.visibility = View.GONE
                                 root.background = ColorDrawable(Color.BLUE)
@@ -83,7 +83,7 @@ class PokemonsLoadStateAdapter(private val actionLambdaForOnClick: () -> Unit) :
                             }
                         }
 
-                        ResponseMessage.ERROR_NO_INTERNET.message -> {
+                        PagingDataResponseMessage.ERROR_NO_INTERNET.message -> {
                             with(binding) {
                                 progressBar.visibility = View.VISIBLE
                                 root.background = ColorDrawable(Color.RED)
@@ -92,7 +92,7 @@ class PokemonsLoadStateAdapter(private val actionLambdaForOnClick: () -> Unit) :
                             }
                         }
 
-                        ResponseMessage.ERROR_SERVER_BROKEN.message -> {
+                        PagingDataResponseMessage.ERROR_SERVER_BROKEN.message -> {
                             with(binding) {
                                 progressBar.visibility = View.VISIBLE
                                 root.background = ColorDrawable(Color.RED)
@@ -106,23 +106,6 @@ class PokemonsLoadStateAdapter(private val actionLambdaForOnClick: () -> Unit) :
             }
         }
 
-
-        /**
-         * It is better to create the onClickListeners of the Buttons INSIDE
-         * the ViewHolder not inside the onBindingView() fun of the Adapter, it
-         * is preferable because the onBindingView() will be repeated for EVERY
-         * Item added BUT the ViewHolder will be created ONLY FEW TIMES in a
-         * RecyclerView depending on the height of the Item and how much Items
-         * are created at once when scrolling
-         *
-         * What we want our click action to do?
-         * We can pass an actionLambda to our LoadStateAdapter, and when click
-         * on the Button that we designed in our Footer, we can just execute
-         * this action Lamda !!!
-         *
-         * This is why we can pass a Lambda to the constructor of our LoadStateAdapter()
-         *
-         */
         init {
             binding.btnLoadStateAction.setOnClickListener {
                 actionLambdaForOnClick.invoke()

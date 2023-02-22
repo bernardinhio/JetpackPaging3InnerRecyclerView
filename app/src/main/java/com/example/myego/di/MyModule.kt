@@ -1,7 +1,6 @@
 package com.example.myego.di
 
 import com.example.myego.api.RetrofitApi
-import com.example.myego.data.MainRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

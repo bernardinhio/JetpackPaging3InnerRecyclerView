@@ -7,7 +7,6 @@ import androidx.paging.PagingData
 import com.example.myego.api.RetrofitApi
 import com.example.myego.datamodel.PokemonDetails
 import com.example.myego.datamodel.PokemonOverview
-import com.example.myego.datamodel.Pokemons
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

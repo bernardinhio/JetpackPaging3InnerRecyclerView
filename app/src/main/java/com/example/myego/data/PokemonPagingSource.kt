@@ -1,17 +1,12 @@
 package com.example.myego.data
 
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.example.myego.api.RetrofitApi
-import com.example.myego.datamodel.PokemonDetails
 import com.example.myego.datamodel.PokemonOverview
 import com.example.myego.datamodel.Pokemons
-import com.example.myego.extensions.getPokemonIdFromUrl
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import retrofit2.HttpException
 import retrofit2.Response
 import java.io.IOException
@@ -21,7 +16,7 @@ class PokemonPagingSource(
     private val retrofitApi: RetrofitApi
 )  : PagingSource<Int, PokemonOverview>() {
 
-    // called every time we load a new page
+    // Called every time we load a new page
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, PokemonOverview> {
         val currentPageIndex: Int = params.key ?: 0 // We get from params
         val numPagesToLoad: Int = params.loadSize  // We get from params
@@ -59,7 +54,6 @@ class PokemonPagingSource(
         } catch (exception: HttpException) {
             Log.d("retrofitCall", "Server Broken!")
             return LoadResult.Error(Throwable("Server Broken!"))
-
         }
 
     }
@@ -70,7 +64,7 @@ class PokemonPagingSource(
 
 }
 
-enum class ResponseMessage(val message: String) {
+enum class PagingDataResponseMessage(val message: String) {
     SUCCESS_LIST_NOT_EMPTY_NOT_ENDED("Success, list has not ended and has Items"),
     LIST_OF_RESULTS_ENDED("The List has ended !"),
     ERROR_NO_INTERNET("Error: Check Internet connection !"),

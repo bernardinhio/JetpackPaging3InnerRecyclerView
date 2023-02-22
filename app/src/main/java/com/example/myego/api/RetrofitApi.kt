@@ -16,7 +16,6 @@ interface RetrofitApi {
         const val END_POINT = "v2/pokemon"
     }
 
-
     @GET(END_POINT)
     suspend fun getAllPokemons(
         @Query("offset") offset: Int?,
@@ -24,9 +23,7 @@ interface RetrofitApi {
     ): Response<Pokemons>
 
 
-    // dynamic endpoint 2
     @GET("$END_POINT/{pokemon_id}")
     suspend fun getPokemonDetails(@Path(value = "pokemon_id", encoded = true) pokemonId: String): Response<PokemonDetails>
-
 
 }

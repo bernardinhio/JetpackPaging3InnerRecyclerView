@@ -7,12 +7,13 @@ data class PokemonOverview(
     @SerializedName("url")
     val urlPokemonDetails: String? = null,
 
-    // used to expand / collapse
-    var isExpanded: Boolean = false,
-    var baseExperience: Int? = null,
-    var id: Int? = null,
-    var order: Int? = null,
-    var weight: Int? = null,
-    var height: Int? = null,
-    var sprites: Sprites? = null,
+    // additional data for expand/collapse pokemon
+    var uiIsExpanded: Boolean = false,
+    var uiBaseExperience: Int? = null,
+    var uiPokemonId: Int? = null,
+    var uiOrder: Int? = null,
+    var uiWeight: Int? = null,
+    var uiHeight: Int? = null,
+    var uiSprites: Sprites? = null,
+    var uiDataIsLoading: Boolean = false
 )

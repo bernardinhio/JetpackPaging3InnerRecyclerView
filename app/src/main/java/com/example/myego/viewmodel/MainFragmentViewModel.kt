@@ -23,8 +23,9 @@ class MainFragmentViewModel @Inject constructor(
     val pokemonPagingDataLiveData = MutableLiveData<PagingData<PokemonOverview>>()
 
     val pokemonDetailsLiveData = MutableLiveData<PokemonDetails>()
-
-
+    val isPokemonDetailsProgressBarVisible: MutableLiveData<Boolean> = MutableLiveData()
+    val isPokemonDetailsErrorToastVisible: MutableLiveData<Boolean> = MutableLiveData()
+    val pokemonDetailsErrorMessage: MutableLiveData<String> = MutableLiveData()
 
     fun fetchApiAndUpdatePagingData() {
 
@@ -39,7 +40,6 @@ class MainFragmentViewModel @Inject constructor(
         }
     }
 
-
     fun fetchPokemonDetails(pokemonId: String){
         viewModelScope.launch {
 
@@ -47,19 +47,29 @@ class MainFragmentViewModel @Inject constructor(
 
             repository.pokemonDetails.collect { backendResult ->
                 when (backendResult) {
-                    is BackendNotCalledYet -> {}
+                    is BackendNotCalledYet -> {
+                        isPokemonDetailsProgressBarVisible.value = false
+                        isPokemonDetailsErrorToastVisible.value = false
+                    }
                     is BackendSuccess -> {
                         pokemonDetailsLiveData.value = backendResult.pokemonDetails
+                        isPokemonDetailsProgressBarVisible.value = false
+                        isPokemonDetailsErrorToastVisible.value = false
                     }
                     is BackendFailure -> {
+                        isPokemonDetailsProgressBarVisible.value = false
+                        isPokemonDetailsErrorToastVisible.value = true
+                        pokemonDetailsErrorMessage.value = backendResult.message
                     }
                     is BackendLoading -> {
+                        isPokemonDetailsProgressBarVisible.value = true
+                        isPokemonDetailsErrorToastVisible.value = false
                     }
 
                 }
             }
+
         }
     }
-
 
 }

@@ -3,7 +3,6 @@ package com.example.myego.view
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.paging.LoadState
@@ -16,6 +15,7 @@ import com.example.myego.adapter.PokemonsLoadStateAdapter
 import com.example.myego.adapter.PokemonsPagingDataAdapter
 import com.example.myego.viewmodel.MainFragmentViewModel
 import com.example.myego.databinding.FragmentMainBinding
+import com.example.myego.datamodel.PokemonDetails
 import com.example.myego.datamodel.PokemonOverview
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -62,58 +62,67 @@ class MainFragment : Fragment() {
 
     }
 
-    fun onPagerItemClicked(pokemonId: String, pokemonPosition: Int){
+    // Modify the already emited PagingData to add to it new PokemonDetails
+    fun onPagerItemClicked5(pokemonId: String, pokemonPosition: Int){
         if (this::currentPagingData.isInitialized){
 
-            var pokemonOverviewIndex: Int = -1
+            var modifiedPokemonDetails: PokemonDetails
+            viewModel.pokemonDetailsLiveData.observe(
+                viewLifecycleOwner,
+                { pokemonDetails ->
+                    modifiedPokemonDetails = pokemonDetails
 
-            // Use map{} to create a list
-            val newPagingData: PagingData<PokemonOverview> = currentPagingData.map { pokemonOverview ->
-                pokemonOverviewIndex++
-                Log.d("habibi", pokemonOverviewIndex.toString())
-                if (pokemonOverviewIndex == pokemonPosition){
+                    var pokemonOverviewIndex: Int = -1
 
-                    // Toogle close or open call backend
-                    if (pokemonOverview.isExpanded == false){
-                        pokemonOverview.isExpanded = true
+                    // Use map{} to create a list
+                    val newPagingData: PagingData<PokemonOverview> = currentPagingData.map { pokemonOverview ->
+                        pokemonOverviewIndex++
+                        Log.d("pokemonOverviewIndex", pokemonOverviewIndex.toString())
+                        if (pokemonOverviewIndex == pokemonPosition){
 
-                        // DO HERE WHATEVER APPI CALL
-                        pokemonOverview.id = pokemonId.toInt()
-                        pokemonOverview.baseExperience = 99
-                        pokemonOverview.height = 188
-                        pokemonOverview.weight = 101
-                        pokemonOverview.order = 134
+                            // Toogle close or open call backend
+                            if (pokemonOverview.uiIsExpanded == false){
+                                pokemonOverview.uiIsExpanded = true
 
+                                // update the clicked pokemonOverview with properties of modified pokemonOverview
+                                pokemonOverview.uiPokemonId = pokemonId.toInt()
+                                pokemonOverview.uiBaseExperience = modifiedPokemonDetails.baseExperience
+                                pokemonOverview.uiHeight = modifiedPokemonDetails.height
+                                pokemonOverview.uiWeight = modifiedPokemonDetails.weight
+                                pokemonOverview.uiOrder = modifiedPokemonDetails.order
+                                pokemonOverview.uiSprites = modifiedPokemonDetails.sprites
+                                pokemonOverview.uiDataIsLoading = false
+
+                            }
+
+                        } else { // keep all non-Clicked closed
+                            pokemonOverview.uiIsExpanded = false
+                        }
+                        return@map pokemonOverview
                     }
 
-                } else { // keep all non-Clicked closed
-                    pokemonOverview.isExpanded = false
-                }
-                pokemonOverview
-            }
+                    currentPagingData = newPagingData
 
+                    pokemonsPagingDataAdapter.submitData(
+                        viewLifecycleOwner.lifecycle,
+                        currentPagingData
+                    )
 
-            currentPagingData = newPagingData
+                    pokemonsPagingDataAdapter.notifyDataSetChanged() // to close all others
 
-            pokemonsPagingDataAdapter.submitData(
-                viewLifecycleOwner.lifecycle,
-                currentPagingData
-            )
+                })
 
-            pokemonsPagingDataAdapter.notifyDataSetChanged() // to close all others
-
+            viewModel.fetchPokemonDetails(pokemonId)
         }
-
-        Toast.makeText(this.context, "pokemonId: $pokemonId \n pokemonPosition: $pokemonPosition", Toast.LENGTH_LONG).show()
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Pass Hof
+        // Pass Hof for Item click Listener
         pokemonsPagingDataAdapter = PokemonsPagingDataAdapter(
-            { pokemonId, pokemonPosition -> onPagerItemClicked(pokemonId, pokemonPosition) }
+            { pokemonId, pokemonPosition -> onPagerItemClicked5(pokemonId, pokemonPosition) }
         )
 
         val concatAdapter: ConcatAdapter = pokemonsPagingDataAdapter.withLoadStateFooter(
@@ -185,10 +194,6 @@ class MainFragment : Fragment() {
 
         }
 
-
-
-
     }
-
 
 }
